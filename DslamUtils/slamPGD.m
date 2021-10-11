@@ -26,10 +26,13 @@ end
 
 %% Define PGD function handles
 %%%function [cost] = mexcostfunc(XT,XL,Ttild,Zarray, uvarrayLeft, uvarrayRight,n,tf,BufferSize)
-funX = @(X) mexcostfunc_mex(X.T,X.L, Ttild, Z, ULout,URout,n ,tf, BufferSize);
+%funX = @(X) mexcostfunc_mex(X.T,X.L, Ttild, Z, ULout,URout,n ,tf, BufferSize);
+funX = @(X) mexcostfunc(X.T,X.L, Ttild, Z, ULout,URout,n ,tf, BufferSize);
 %%%function [gX,gXT, gXL, dfdXT , dhdXT] = mexslamgrad(XT,XL, Ttild, Z, uvarrayLeft, uvarrayRight, tf, BufferSize)
-grdfunX = @(X) mexslamgrad_mex(X.T,X.L, Ttild, Z, ULout,URout, tf, BufferSize);
+%grdfunX = @(X) mexslamgrad_mex(X.T,X.L, Ttild, Z, ULout,URout, tf, BufferSize);
+grdfunX = @(X) mexslamgrad(X.T,X.L, Ttild, Z, ULout,URout, tf, BufferSize);
 Proj = @(XT) mexproj2SE3_strct_mex(XT,n,tf, BufferSize );
+Proj = @(XT) mexproj2SE3_strct(XT,n,tf, BufferSize );
 % Gt = @(XT,t, grdXT) projfullvec(XT, t , grdXT, t, BufferSize, n);
 
 

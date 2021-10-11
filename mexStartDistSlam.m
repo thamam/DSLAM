@@ -60,7 +60,7 @@ Ttild = [];
 maxiter = 20 ;  % max GPA iterations
 eta = 1e-6; % stopping criterion
 fths = 1e-6;
-opt = [maxiter, eta, fths];\
+opt = [maxiter, eta, fths];
 %backtracking parameters
 alpha = 1;   % choose alpha in (0, 0.5)
 beta = 0.5;     % choose beta in (0,1)

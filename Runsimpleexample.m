@@ -20,10 +20,6 @@ SZ = [M, 50]; %The 50 is for max num of features observed by one robot at any gi
 [ULout,URout] = convmeastoarray(uvarray,SZ);
 Uout = struct('left',ULout,'right',URout);
 
-
-
-
-
 % Compute the perturbed paths
 X0.T = computeposetrajectory(T0, tildPveccmat, n);
 % Use noisy version of lanmdrks for initial guess
@@ -43,4 +39,9 @@ beta = 0.5;     % choose beta in (0,1)
 gdops = [alpha, beta];
 
 
-[Xhat, stats] = slamPGD(X0, tildPveccmat, Zout,Uout, n ,NT, M, 500, opt, gdops);
+%[Xhat, stats] = slamPGD(X0, tildPveccmat, Zout, Uout, n, NT, M, 500, opt, gdops);
+[Xhat, stats] = slam_mgd(X0, tildPveccmat, Zout, Uout, n, NT, M, 500, opt, gdops);
+
+trajecplotmode.Noise = 1;
+trajecplotmode.star = 0;
+solanim({Xhat}, 'solution_animation', n, 500, X0.T, trajecplotmode)

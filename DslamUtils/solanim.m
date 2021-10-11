@@ -3,7 +3,7 @@ function [] = solanim(ResArray, vidtit, n, BufferSize, perturbedposetrajec, traj
 %   Detailed explanation goes here
 
 % Create a video writer object for the output video file and open the object for writing.
-load('starTrajec.mat');
+% load('starTrajec.mat');
 videoname = [vidtit,'.mp4'];
 
 v = VideoWriter(videoname, 'MPEG-4');
