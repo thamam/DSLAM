@@ -41,6 +41,8 @@ gdops = [alpha, beta];
 
 %[Xhat, stats] = slamPGD(X0, tildPveccmat, Zout, Uout, n, NT, M, 500, opt, gdops);
 [Xhat, stats] = slam_mgd(X0, tildPveccmat, Zout, Uout, n, NT, M, 500, opt, gdops);
+%[Xhat] = manopt_solve(X0, tildPveccmat, Zout, Uout, n, NT, M, 500, opt, gdops);
+%[Xhat, stats] = slam_cc_mgd(X0, tildPveccmat, Zout, Uout, n, NT, M, 500, opt, gdops);
 
 trajecplotmode.Noise = 1;
 trajecplotmode.star = 0;

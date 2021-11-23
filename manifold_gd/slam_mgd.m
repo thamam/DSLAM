@@ -20,11 +20,11 @@ end
 
 %% Define PGD function handles
 %%%function [cost] = mexcostfunc(XT,XL,Ttild,Zarray, uvarrayLeft, uvarrayRight,n,tf,BufferSize)
-%funX = @(X) mexcostfunc_mex(X.T,X.L, Ttild, Z, ULout,URout,n ,tf, BufferSize);
-funX = @(X) mexcostfunc(X.T,X.L, Ttild, Z, ULout,URout,n ,tf, BufferSize);
+funX = @(X) mexcostfunc_mex(X.T,X.L, Ttild, Z, ULout,URout,n ,tf, BufferSize);
+%funX = @(X) mexcostfunc(X.T,X.L, Ttild, Z, ULout,URout,n ,tf, BufferSize);
 %%%function [gX,gXT, gXL, dfdXT , dhdXT] = mexslamgrad(XT,XL, Ttild, Z, uvarrayLeft, uvarrayRight, tf, BufferSize)
-%grdfunX = @(X) mexslamgrad_mex(X.T,X.L, Ttild, Z, ULout,URout, tf, BufferSize);
-grdfunX = @(X) mexslamgrad(X.T,X.L, Ttild, Z, ULout,URout, tf, BufferSize);
+grdfunX = @(X) mexslamgrad_mex(X.T,X.L, Ttild, Z, ULout,URout, tf, BufferSize);
+%grdfunX = @(X) mexslamgrad(X.T,X.L, Ttild, Z, ULout,URout, tf, BufferSize);
 Proj = @(XT) mexproj2SE3_strct_mex(XT,n,tf, BufferSize );
 Proj = @(XT) mexproj2SE3_strct(XT,n,tf, BufferSize );
 % Gt = @(XT,t, grdXT) projfullvec(XT, t , grdXT, t, BufferSize, n);
@@ -50,11 +50,14 @@ outstat = [itc fXc grdfXcNrm, 1/Lk, -1];
 
 % [Xc, it_hist, ierr] = usenewtonsolver(X0, Ttild, Z,ULout,URout, n ,tf, BufferSize);
 dtfpXc = dist2fp(Xc);
+tic;
 while (itc < maxIter &&  dtfpXc > eta) %  dist. to fix-point
-    itc = itc+1;
+    itc = itc+1
+    
+    step_size = 0.0000001;
     
     % Manifold gradient descent with fixed step size.
-    Xn = mgd_iteration(Xc, grdXc, 0.0001);
+    Xn = mgd_iteration(Xc, grdXc, step_size);
     
     fXn = funX(Xn);    
     % Compute values for next round
@@ -66,9 +69,10 @@ while (itc < maxIter &&  dtfpXc > eta) %  dist. to fix-point
    
     %Update stats
     outstat(itc+1,:) = [itc fXc grdfXcNrm, 1/Lk, dist2fp(Xc)];
+    fXc
     
 end
-
+toc;
 Xhat = Xc;
 dtfpXc = dist2fp(Xc);
 TotOutStat = [itc fXc grdfXcNrm, 1/Lk, dtfpXc];

@@ -16,8 +16,9 @@ for j = 1:size(X.T, 2)
 
         pose_indices = 1 + (16*(i-1):(16*i - 1));
 
-        poses.T(pose_indices, j) = reshape(calculate_next_pose(reshape(X.T(pose_indices, j), [4 4]), ...
-                                                               reshape(step_size * -g_eval.T(pose_indices), [4 4])), ...
+        poses.T(pose_indices, j) = reshape(calculate_next_pose(reshape(X.T(pose_indices, j), [4 4]),   ...
+                                                               reshape(g_eval.T(pose_indices), [4 4]), ...
+                                                               step_size), ...
                                            [16 1]);
 
     end
@@ -27,10 +28,10 @@ end
 end
 
 
-function new_pose = calculate_next_pose(current_pose, g_eval)
+function new_pose = calculate_next_pose(current_pose, g_eval, step_size)
 
 gradient = gradient_projection(current_pose, g_eval);
-new_pose = exponential_map(gradient) * current_pose;
+new_pose = exponential_map(-step_size * gradient) * current_pose;
 
 end
 
@@ -52,6 +53,7 @@ t = manifold_point(1:3, 4);
 adjoint_matrix = [R skew(t) * R;
                   zeros(3) manifold_point(1:3, 1:3)];
 
+%
 gradient = adjoint_matrix * tangent_gradient;
 
 end

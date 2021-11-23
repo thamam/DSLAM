@@ -17,11 +17,11 @@ featNoiseSigma = 0.5;%how far is L initial guess from actual location
 
 % Control random generator
 rng(0,'twister')
-BufferSize = 500; %Restriction on howmany many poses to keep updating
+BufferSize = 1; %Restriction on howmany many poses to keep updating
 
 RUNMODES = {'singlerun','sequential'};
 
-runmode = RUNMODES{2};
+runmode = RUNMODES{1};
 %========================================================%
 %% Define usefull handels
 rotmat = @(M) M(1:3,1:3);
@@ -57,7 +57,7 @@ Xposehist = zeros(T*n*16+3*M,T);
 Tmat = zeros(T*16,n);
 Ttild = [];
 
-maxiter = 20 ;  % max GPA iterations
+maxiter = 500 ;  % max GPA iterations
 eta = 1e-6; % stopping criterion
 fths = 1e-6;
 opt = [maxiter, eta, fths];
@@ -79,12 +79,14 @@ end
     %% Solve 
 if strcmp(runmode,RUNMODES{1}) % singlerunmode
     %% Initialize measurmeents at t==1
-    opt(1) = 2000;
+    opt(1) = 10000;
     X0.L = XLstar+featNoiseSigma^2*randn(size(XLstar));
     T0   = XTstar(1:16,1:n);   
 
     X0.T   = computeposetrajectory(T0, tildPveccmat, n);
-    [Xhat, statOut] = slamPGD(X0, tildPveccmat, Zout,Uout, n ,T, M, T+10, opt, gdops);
+    %[Xhat, statOut] = slam_mgd(X0, tildPveccmat, Zout,Uout, n ,T, M, T+10, opt, gdops);
+    %[Xhat, statOut] = slam_mgd(X0, tildPveccmat, Zout,Uout, n ,T, M, T+10, opt, gdops);
+    [Xhat] = slam_mgd(X0, tildPveccmat, Zout,Uout, n ,T, M, T+10, opt, gdops);
     ResArray = {Xhat};
 else %run sequential mode
     %% Initialize measurmeents at t==1
@@ -123,7 +125,8 @@ else %run sequential mode
             updatelandmarks(Zout, feathist, XLstar, tt, n,featNoiseSigma);
         Xc.L(:,firstobsfeatures) = LnewfeatWithNoise;
         %% Solve for t=1,2,...
-        [Xhat, statOut(tt,1:6)] = slamPGD(Xc, Ttild, Zout,Uout, n ,tt, M, BufferSize, opt, gdops);
+        %[Xhat, statOut(tt,1:6)] = slamPGD(Xc, Ttild, Zout,Uout, n ,tt, M, BufferSize, opt, gdops);
+        [Xhat, statOut(tt,1:5)] = slam_mgd(Xc, Ttild, Zout,Uout, n ,tt, M, BufferSize, opt, gdops);
         Xc = Xhat;
         if mod(tt,5)==0
             resltcnt = resltcnt +1;
