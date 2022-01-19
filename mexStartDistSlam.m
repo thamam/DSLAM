@@ -73,20 +73,20 @@ if true
     % Compute gradient
     [gX,gXT, gXL, dfdXT , dhdXT] = mexslamgrad(Xstar.T, Xstar.L, tildPveccmat, Zout, ULout,URout,T, BufferSize);
     tf=5;
-    opt(1)=500;
+    opt(1)=1000;
     [XstarOut, statOut] = slamPGD(Xstar, tildPveccmat, Zout,Uout, n ,tf, M, BufferSize, opt, gdops);
 end
     %% Solve 
 if strcmp(runmode,RUNMODES{1}) % singlerunmode
     %% Initialize measurmeents at t==1
-    opt(1) = 10000;
+    opt(1) = 500;
     X0.L = XLstar+featNoiseSigma^2*randn(size(XLstar));
     T0   = XTstar(1:16,1:n);   
 
     X0.T   = computeposetrajectory(T0, tildPveccmat, n);
     %[Xhat, statOut] = slam_mgd(X0, tildPveccmat, Zout,Uout, n ,T, M, T+10, opt, gdops);
     %[Xhat, statOut] = slam_mgd(X0, tildPveccmat, Zout,Uout, n ,T, M, T+10, opt, gdops);
-    [Xhat] = slam_mgd(X0, tildPveccmat, Zout,Uout, n ,T, M, T+10, opt, gdops);
+    [Xhat] = slam_mgd(XstarOut, tildPveccmat, Zout,Uout, n ,tf, M, BufferSize, opt, gdops);
     ResArray = {Xhat};
 else %run sequential mode
     %% Initialize measurmeents at t==1

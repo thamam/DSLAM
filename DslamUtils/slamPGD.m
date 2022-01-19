@@ -65,7 +65,7 @@ bktrkops.mode = {'nonconvex'};
 % [Xc, it_hist, ierr] = usenewtonsolver(X0, Ttild, Z,ULout,URout, n ,tf, BufferSize);
 dtfpXc = dist2fp(Xc);
 while (itc < maxIter &&  dtfpXc > eta) %  dist. to fix-point
-    itc = itc+1;   
+    itc = itc+1
     %find Xn with backtracking - B1 in Beck's FOM in opt. book sectopn 10.3.3
     [Xn,Lk,GtXn] =  backtrackstep( Xc,funX,grdXc, Ase3, Gse3, bktrkops);
     bktrkops.s = Lk/4; %update s according to emprirical values of Lk
@@ -73,7 +73,7 @@ while (itc < maxIter &&  dtfpXc > eta) %  dist. to fix-point
         
     % Compute values for next round
     Xc = Xn;
-    fXc=fXn;
+    fXc=fXn
     grdXc = grdfunX(Xc); 
     grdXcvec = se3vec(grdXc);
     grdfXcNrm = norm(grdXcvec) ;

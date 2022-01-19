@@ -54,12 +54,17 @@ tic;
 while (itc < maxIter &&  dtfpXc > eta) %  dist. to fix-point
     itc = itc+1
     
-    step_size = 0.0000001;
-    
     % Manifold gradient descent with fixed step size.
-    Xn = mgd_iteration(Xc, grdXc, step_size);
+    Xn = cc_mgd_iteration(Xc, grdXc, funX);
+    
+    nnz(grdXc.T)
     
     fXn = funX(Xn);    
+    
+    plot(1:itc,outstat(1:itc, 2))
+    pause(0.05)
+    
+    
     % Compute values for next round
     Xc = Xn;
     fXc=fXn;
@@ -73,6 +78,8 @@ while (itc < maxIter &&  dtfpXc > eta) %  dist. to fix-point
     
 end
 toc;
+figure; plot(1:itc, outstat(1:itc, 2))
+pause(0.05)
 Xhat = Xc;
 dtfpXc = dist2fp(Xc);
 TotOutStat = [itc fXc grdfXcNrm, 1/Lk, dtfpXc];

@@ -3,11 +3,19 @@
 % X.L – 3xM array where X.L(:, m) is the (x,y,z)^T coordinates of the m-th landmark. 
 
 
-function poses = mgd_iteration(X, g_eval, step_size)
+function new_pose = mgd_iteration(X, g_eval, funX)
 
-% Need to change this if variable number of landmarks per object (could
-% select subset of indices and set poses.L(indices) = ...).
-poses.L = X.L - step_size .* g_eval.L;
+% Line search for step size.
+step_size = 0.001;
+step_scale = 0.5;
+c = 0.1;
+
+% Update landmarks with regular gradient descent.
+new_pose.L = X.L - step_size .* g_eval.L;
+
+% Set descent direction for landmarks.
+descent_vector.L = -g_eval.L;
+
 
 % Iterate through columns of poses to handle multiple robots.
 for j = 1:size(X.T, 2)
@@ -16,22 +24,58 @@ for j = 1:size(X.T, 2)
 
         pose_indices = 1 + (16*(i-1):(16*i - 1));
 
-        poses.T(pose_indices, j) = reshape(calculate_next_pose(reshape(X.T(pose_indices, j), [4 4]),   ...
-                                                               reshape(g_eval.T(pose_indices), [4 4]), ...
-                                                               step_size), ...
-                                           [16 1]);
+        new_pose_matrix = calculate_next_pose(reshape(X.T(pose_indices, j), [4 4]),   ...
+                                              reshape(g_eval.T(pose_indices), [4 4]), ...
+                                              step_size);
+        
+        new_pose.T(pose_indices, j) = reshape(new_pose_matrix, [16 1]);
+        
+        descent_direction_matrix = reshape(X.T(pose_indices, j), [4 4]) \ new_pose_matrix;
+        descent_vector.T(pose_indices, j) = reshape(descent_direction_matrix, [16 1]);
 
     end
-    
 end
+
+% This needs to be inner product between step direction and gradient.
+inner = dot(se32vec(descent_vector), se32vec(g_eval));
+
+% while funX(X) - funX(new_pose) < -step_size * c * inner
+%     
+% %while funX(X) - funX(new_pose) < 
+%     
+%     %funX(X) - funX(new_pose)
+%     
+%     step_size = step_scale * step_size;
+%     
+%     % Update landmarks with regular gradient descent.
+%     new_pose.L = X.L - step_size .* g_eval.L;
+% 
+%     % Iterate through columns of poses to handle multiple robots.
+%     for j = 1:size(X.T, 2)
+% 
+%         for i = 1:(length(X.T)/16)
+% 
+%             pose_indices = 1 + (16*(i-1):(16*i - 1));
+% 
+%             new_pose.T(pose_indices, j) = reshape(calculate_next_pose(reshape(X.T(pose_indices, j), [4 4]),   ...
+%                                                                       reshape(g_eval.T(pose_indices), [4 4]), ...
+%                                                                       step_size), ...
+%                                                [16 1]);
+% 
+%         end
+%     end
+% end
     
 end
 
 
 function new_pose = calculate_next_pose(current_pose, g_eval, step_size)
 
-gradient = gradient_projection(current_pose, g_eval);
-new_pose = exponential_map(-step_size * gradient) * current_pose;
+% Test iterate function value with initial step size.
+gradient = gradient_projection(current_pose, -step_size*g_eval);
+%new_pose = current_pose * exponential_map(-step_size * gradient);
+%new_pose = logm(inv(exponential_map(step_size * gradient)) * current_pose);
+new_pose =  current_pose * exponential_map(gradient);
 
 end
 
@@ -53,10 +97,11 @@ t = manifold_point(1:3, 4);
 adjoint_matrix = [R skew(t) * R;
                   zeros(3) manifold_point(1:3, 1:3)];
 
-%
-gradient = adjoint_matrix * tangent_gradient;
+gradient = tangent_gradient;
+gradient = inv(adjoint_matrix) * tangent_gradient;
 
 end
+
 
 function manifold_point = exponential_map(tangent_vector)
 
