@@ -79,7 +79,7 @@ end
     %% Solve 
 if strcmp(runmode,RUNMODES{1}) % singlerunmode
     %% Initialize measurmeents at t==1
-    opt(1) = 500;
+    opt(1) = 5000;
     X0.L = XLstar+featNoiseSigma^2*randn(size(XLstar));
     T0   = XTstar(1:16,1:n);   
 
